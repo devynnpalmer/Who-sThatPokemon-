@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 
 public class WTPMain extends AppCompatActivity {
 
+    //initialization of all the fun stuffs!
     ArrayList<String> pokeURLs = new ArrayList<String>();
     ArrayList<String> pokeNames = new ArrayList<String>();
     int chosenPoke = 0;
@@ -38,23 +39,24 @@ public class WTPMain extends AppCompatActivity {
     Button button2;
     Button button3;
 
-    public void pokeChose(View view) {
+    public void pokeChose(View view) { //answer selection method
 
         if (view.getTag().toString().equals(Integer.toString(locationOfCorrectAnswer))) {
 
-            Toast.makeText(getApplicationContext(), "Correct!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Correct!", Toast.LENGTH_SHORT).show(); 
+            //displays to the user if correct
 
         } else {
 
             Toast.makeText(getApplicationContext(), "Wrong! It was " + pokeNames.get(chosenPoke), Toast.LENGTH_SHORT).show();
-
+            //if incorrect
         }
 
         createNewQuestion();
 
     }
 
-
+    //fetches poke images from the interwebs
     public class ImageDownloader extends AsyncTask<String, Void, Bitmap> {
 
         @Override
@@ -87,20 +89,30 @@ public class WTPMain extends AppCompatActivity {
         }
     }
 
+    //downloads poke images
     public class DownloadTask extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... params) {
             try {
                 StringBuilder result = new StringBuilder();
+                
                 URL url = new URL(params[0]);
+                
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                
                 InputStream inputStream = urlConnection.getInputStream();
+                
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                
                 int charRead;
+                
                 char[] inputBuffer = new char[500];
+                
                 while (true) {
+                    
                     charRead = inputStreamReader.read(inputBuffer);
+                    
                     if (charRead <= 0) {
                         break;
                     }
@@ -133,8 +145,10 @@ public class WTPMain extends AppCompatActivity {
 
         try {
             result = task.execute("http://pokemongo.gamepress.gg/pokemon-list").get();
+            //poke images fetched from this site ^^^
 
             Pattern p = Pattern.compile("<img src=\"(.*?)\"");
+            //images are found via this ^^^
             Matcher m = p.matcher(result);
 
             while (m.find()) {
@@ -143,6 +157,8 @@ public class WTPMain extends AppCompatActivity {
             }
             p = Pattern.compile("<alt=\"(.*?)\"");
             m = p.matcher(result);
+            //names are matched to their corresponding images
+            //kinda buggy :'('
 
             while (m.find()) {
 
@@ -150,6 +166,7 @@ public class WTPMain extends AppCompatActivity {
 
             }
 
+        //playing it safe
         } catch (InterruptedException e) {
 
             e.printStackTrace();
@@ -162,7 +179,7 @@ public class WTPMain extends AppCompatActivity {
         createNewQuestion();
     }
 
-
+    //new question
     public void createNewQuestion() {
 
         Random random = new Random();
@@ -174,11 +191,12 @@ public class WTPMain extends AppCompatActivity {
 
         try {
 
+            //poke pic
             pokeImage = imageTask.execute(pokeURLs.get(chosenPoke)).get();
 
             imageView.setImageBitmap(pokeImage);
 
-            locationOfCorrectAnswer = random.nextInt(4);
+            locationOfCorrectAnswer = random.nextInt(4); //assigns different answers
 
             int incorrectAnswerLocation;
 
@@ -186,7 +204,7 @@ public class WTPMain extends AppCompatActivity {
 
                 if (i == locationOfCorrectAnswer) {
 
-                    answers[i] = pokeNames.get(chosenPoke);
+                    answers[i] = pokeNames.get(chosenPoke); //makes the correct answer
 
                 } else {
 
@@ -194,7 +212,7 @@ public class WTPMain extends AppCompatActivity {
 
                     while (incorrectAnswerLocation == chosenPoke) {
 
-                        incorrectAnswerLocation = random.nextInt(pokeURLs.size());
+                        incorrectAnswerLocation = random.nextInt(pokeURLs.size()); //wrong answer location!
                     }
 
                     answers[i] = pokeNames.get(incorrectAnswerLocation);
@@ -202,6 +220,7 @@ public class WTPMain extends AppCompatActivity {
                 }
             }
 
+            //assigns buttons to diff answers
             button0.setText(answers[0]);
             button1.setText(answers[1]);
             button2.setText(answers[2]);
